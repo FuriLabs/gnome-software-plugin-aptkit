@@ -543,8 +543,13 @@ gs_plugin_aptkit_list_apps_async (GsPlugin *plugin,
   /* Reset the tried_safe_mode flag when listing apps */
   self->tried_safe_mode = FALSE;
 
-  if (query != NULL)
-    is_for_updates = gs_app_query_get_is_for_update (query);
+  if (query == NULL) {
+    g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                             "NULL query");
+    return;
+  }
+
+  is_for_updates = gs_app_query_get_is_for_update (query);
 
   /* Currently only support one query type at a time */
   if (gs_app_query_get_n_properties_set (query) != 1 ||
