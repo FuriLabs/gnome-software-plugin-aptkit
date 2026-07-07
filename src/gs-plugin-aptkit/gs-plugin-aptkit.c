@@ -282,6 +282,12 @@ aptkit_transaction_signal_cb (GDBusProxy *proxy,
       g_variant_get (value, "&s", &exit_state);
       g_debug ("Exit state changed to: %s", exit_state);
 
+      if (g_strcmp0 (exit_state, "exit-unfinished") == 0) {
+        /* Initial/intermediate state — transaction hasn't completed yet, ignore */
+        g_debug ("Exit state is exit-unfinished, ignoring");
+        return;
+      }
+
       if (g_strcmp0 (exit_state, "exit-success") == 0) {
         /* we only need to emit updates changed on cache update or system upgrade */
         if (data->action == ACTION_UPGRADE_SYSTEM) {
@@ -315,6 +321,12 @@ aptkit_transaction_signal_cb (GDBusProxy *proxy,
                                  GS_PLUGIN_ERROR,
                                  GS_PLUGIN_ERROR_FAILED,
                                  "Previous transaction failed");
+      } else {
+        g_warning ("Unknown exit state: %s", exit_state);
+        g_task_return_new_error (data->task,
+                                 GS_PLUGIN_ERROR,
+                                 GS_PLUGIN_ERROR_FAILED,
+                                 "Unknown exit state: %s", exit_state);
       }
       g_object_unref (proxy);
       g_free (data);
