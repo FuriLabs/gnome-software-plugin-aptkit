@@ -334,8 +334,10 @@ aptkit_transaction_signal_cb (GDBusProxy *proxy,
       }
 
       if (packages != NULL && dependencies != NULL) {
-        gboolean has_packages = aptkit_process_packages (data->plugin, list, packages, dependencies);
+        /* Only rebuild the app list during list-apps; during upgrades,
+         * the apps were already staged by update_apps_async. */
         if (data->action == ACTION_LIST_UPDATES) {
+          gboolean has_packages = aptkit_process_packages (data->plugin, list, packages, dependencies);
           if (!has_packages && data->safe_mode && !data->plugin->tried_safe_mode) {
             /* If no packages found in safe mode, try without safe mode */
             data->plugin->tried_safe_mode = TRUE;
