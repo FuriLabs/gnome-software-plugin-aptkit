@@ -7,7 +7,7 @@ project(
 
 gnome_software_dep = dependency(
   'gnome-software',
-  version: '>=50.0',
+  version: '>=51.0',
   fallback: ['gnome-software', 'libgnomesoftware_dep'],
   default_options: [
     'malcontent=false',
